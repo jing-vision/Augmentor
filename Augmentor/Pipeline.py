@@ -221,7 +221,7 @@ class Pipeline(object):
                 #     image = image.convert("RGB")
                 for i in range(len(images)):
                     if i == 0:
-                        save_name = augmentor_image.class_label + "_original_" + os.path.basename(augmentor_image.image_path) + "_" + file_name \
+                        save_name = augmentor_image.class_label + "_original_" + os.path.splitext(os.path.basename(augmentor_image.image_path))[0] + "_" + file_name \
                                     + "." + (self.save_format if self.save_format else augmentor_image.file_format)
                         images[i].save(os.path.join(augmentor_image.output_directory, save_name))
                     else:
@@ -627,9 +627,11 @@ class Pipeline(object):
         """
         def _transform(image):
             for operation in self.operations:
-                r = random.uniform(0, 1)
-                if r < operation.probability:
-                    image = operation.perform_operation([image])[0]
+                r = round(random.uniform(0, 1), 1)
+                if r <= operation.probability:
+                    image = [image]
+                    image = operation.perform_operation(image)
+
             return image
 
         return _transform
